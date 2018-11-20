@@ -307,5 +307,26 @@ class TaoBaoAPIClient(object):
         return getattr(self.post, attr)
 
 
+class TaoBaoAPINode:
+    def __init__(
+            self,
+            client,
+            field,
+            upstream = None
+    ):
+        self.field = '{}_{}'.format(upstream.field, field) if upstream and upstream.field else field 
+        self.client = client
+
+    def __call__(self, *args, **kwargs):
+        return getattr(self.client, self.field)(*args, **kwargs)
+
+    def __getattr__(self, field):
+        node = TaoBaoAPINode(client=self.client, field=field, upstream=self)
+        return node
+
+
+
+
 APIClient = TaoBaoAPIClient
+APINode = TaoBaoAPINode
 APIError = TaoBaoAPIError
